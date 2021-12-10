@@ -3,6 +3,7 @@ import { AgGridReact } from "ag-grid-react";
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import AddCar from "./AddCar";
+import EditCar from "./EditCar";
 
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-material.css";
@@ -12,13 +13,13 @@ function Carlist() {
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   useEffect(() => {
     fetchCars();
   }, []);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const fetchCars = () => {
     fetch("http://carrestapi.herokuapp.com/cars")
@@ -55,6 +56,26 @@ function Carlist() {
       .catch((err) => console.error(err));
   };
 
+  const editCar = (link, updatedCar) => {
+    fetch(link, {
+      method: "PUT",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(updatedCar),
+    })
+      .then((response) => {
+        if (response.ok) {
+          setMsg("Car edited!");
+          setOpen(true);
+          fetchCars();
+        } else {
+          alert("Something went wrong");
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
   const columns = [
     { field: "brand", sortable: true, filter: true },
     { field: "model", sortable: true, filter: true },
@@ -62,6 +83,16 @@ function Carlist() {
     { field: "fuel", width: 100, sortable: true, filter: true },
     { field: "year", width: 100, sortable: true, filter: true },
     { field: "price", width: 100, sortable: true, filter: true },
+    {
+      headerName: " ",
+      sortable: false,
+      filter: false,
+      width: 120,
+      field: "_links.self.href",
+      cellRendererFramework: (params) => (
+        <EditCar editCar={editCar} row={params} />
+      ),
+    },
     {
       headerName: " ",
       sortable: false,
