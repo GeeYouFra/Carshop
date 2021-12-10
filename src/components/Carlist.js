@@ -52,7 +52,17 @@ function Carlist() {
       },
       body: JSON.stringify(car),
     })
-      .then((response) => fetchCars())
+      //.then((response) => fetchCars())
+      //.catch((err) => console.error(err));
+      .then((response) => {
+        if (response.ok) {
+          setMsg("Car added!");
+          setOpen(true);
+          fetchCars();
+        } else {
+          alert("Something went wrong");
+        }
+      })
       .catch((err) => console.error(err));
   };
 
